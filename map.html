@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Tehran Offline Map</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      html,
+      body,
+      #map {
+        height: 100%;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      const map = L.map("map").setView([35.724688, 51.387633], 15);
+
+      L.tileLayer("tiles/{z}/{x}/{y}.png", {
+        minZoom: 5,
+        maxZoom: 18,
+        attribution: "",
+      }).addTo(map);
+
+      let marker = L.circleMarker([35.724688, 51.387633], {
+        radius: 10,
+        color: "white",
+        weight: 4,
+        fillColor: "#3388ff",
+        fillOpacity: 1,
+      }).addTo(map);
+
+      let halo = L.circle([35.724688, 51.387633], {
+        radius: 50,
+        color: "",
+        fillColor: "#38A8FF",
+        fillOpacity: 0.2,
+        weight: 0,
+      }).addTo(map);
+
+      let firstTime = true;
+
+      setInterval(() => {
+        fetch("location.txt?" + new Date().getTime())
+          .then((r) => r.text())
+          .then((text) => {
+            const [lat, lon] = text.trim().split(",");
+            const latNum = parseFloat(lat);
+            const lonNum = parseFloat(lon);
+            if (!isNaN(latNum) && !isNaN(lonNum)) {
+              const position = [latNum, lonNum];
+              marker.setLatLng(position);
+              halo.setLatLng(position);
+              if (firstTime) {
+                map.panTo(position);
+                firstTime = false;
+              }
+              console.log("Updated to:", position);
+            }
+          })
+          .catch((e) => console.log("location.txt not found or invalid"));
+      }, 1000);
+    </script>
+  </body>
+</html>
