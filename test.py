@@ -9,6 +9,7 @@ points = [
 
 while True:
     for lat, lon in points:
+        # print("testtttt")
         with open("location.txt", "w") as f:
             f.write(f"{lat},{lon}")
         time.sleep(1)
